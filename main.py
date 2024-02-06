@@ -21,7 +21,10 @@ screen.onkey(r_paddle.go_down, "Down")
 screen.onkey(l_paddle.go_up, "w")
 screen.onkey(l_paddle.go_down, "s")
 
+
 game_is_on = True
+last_collision_paddle = None  # Variable to track the last paddle collided with
+
 while game_is_on:
     time.sleep(0.02)
     screen.update()
@@ -32,34 +35,32 @@ while game_is_on:
         ball.bounce_y()
 
     # Detect collision with paddle
-    if (ball.distance(r_paddle) < 50 and ball.xcor() > 320) and ball.heading() < 180:
-        if not ball.is_bouncing_paddle:
-            ball.is_bouncing_paddle = True
-            scoreboard.r_point()
-            ball.bounce_x()
-    elif (ball.distance(l_paddle) < 50 and ball.xcor() < -320) and ball.heading() > 180:
-        if not ball.is_bouncing_paddle:
-            ball.is_bouncing_paddle = True
-            scoreboard.l_point()
-            ball.bounce_x()
-    else:
-        ball.is_bouncing_paddle = False
+    if (ball.distance(r_paddle) < 50 and ball.xcor() > 320) and last_collision_paddle != 'right':
+        scoreboard.r_point()
+        ball.bounce_x()
+        last_collision_paddle = 'right'
+    elif (ball.distance(l_paddle) < 50 and ball.xcor() < -320) and last_collision_paddle != 'left':
+        scoreboard.l_point()
+        ball.bounce_x()
+        last_collision_paddle = 'left'
 
     # Detect R paddle misses
     if ball.xcor() > 380:
         scoreboard.l_point()
         ball.reset_position()
+        last_collision_paddle = None  # Reset last collision paddle
 
     # Detect L paddle misses
     if ball.xcor() < -380:
         scoreboard.r_point()
         ball.reset_position()
+        last_collision_paddle = None  # Reset last collision paddle
 
     # Check if the game should end
-    if scoreboard.l_score == 10:
+    if scoreboard.l_score == 3:
         print("Left player wins!")
         game_is_on = False
-    elif scoreboard.r_score == 10:
+    elif scoreboard.r_score == 3:
         print("Right player wins!")
         game_is_on = False
 
